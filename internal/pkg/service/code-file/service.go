@@ -1,20 +1,24 @@
 package codefile
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+)
 
 type CodeFileStorage interface {
-	WriteFile(inputfilename string, inputfiledata []byte) error
-	ReafFile(inputfilename string) ([]byte, error)
+	WriteFile(key string, inputFileData io.Reader) error
+	ReadFile(key string) ([]byte, error)
 }
 
 type CodeFileService struct {
 	storage CodeFileStorage
 }
 
-func (cfs *CodeFileService) AddFileToStorage(inputfilename string, inputfiledata []byte) error {
-	err := cfs.storage.WriteFile(inputfilename, inputfiledata)
+func (cfs *CodeFileService) AddFileToStorage(inputFileName string, inputFileData io.Reader) error {
+	err := cfs.storage.WriteFile(inputFileName, inputFileData)
 	if err != nil {
 		err = fmt.Errorf("error while trying to store code file: %w", err)
+		return err
 	}
 	return nil
 }
