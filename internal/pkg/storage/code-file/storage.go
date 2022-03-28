@@ -2,6 +2,8 @@ package codefile
 
 import (
 	"errors"
+	"io"
+	"io/ioutil"
 	"os"
 )
 
@@ -13,41 +15,29 @@ type DiskCodeFileRepository struct {
 	DiskCodeFileRepositoryPath string
 }
 
-func (dcfr *DiskCodeFileRepository) WriteFile(inputfilename string, inputfiledata []byte) error {
+func (dcfr *DiskCodeFileRepository) CreateFile(inputfilename string) (*os.File, error) {
 	file, err := os.OpenFile(dcfr.DiskCodeFileRepositoryPath+inputfilename, os.O_WRONLY|os.O_CREATE, 0666)
-	defer file.Close()
+
 	if err != nil {
-		return err
+		return nil, err
 	}
-	numberofbytes, err := file.Write(inputfiledata)
-	if err != nil {
-		return err
-	}
-	if numberofbytes != len(inputfiledata) {
-		err = errors.New("diferent number of bytes writen")
-	}
-	return nil
+	return file, nil
 }
 
-func (dcfr *DiskCodeFileRepository) ReadFile(inputfilename string) ([]byte, error) {
-	var outputfiledata []byte
+func (dcfr *DiskCodeFileRepository) WriteFile(writer io.Writer, inputfiledata []byte) error {
+	_, err := writer.Write(inputfiledata)
+	return err
+}
 
-	file, err := os.Open(dcfr.DiskCodeFileRepositoryPath + inputfilename) // For read access.
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	numberofbytes, err := file.Read(outputfiledata)
-	if err != nil {
-		return nil, err
-	}
-
-	if numberofbytes != len(outputfiledata) {
-		err = errors.New("diferent number of bytes read")
+func (dcfr *DiskCodeFileRepository) ReadFile(reader io.Reader) ([]byte, error) {
+	outputFileData, err := ioutil.ReadAll(reader)
+	if len(outputFileData) == 0 {
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return outputfiledata, nil
+	return outputFileData, nil
 }
 
 func CheckAndCreateRepository(repositoryPath string) error {
