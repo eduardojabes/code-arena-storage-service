@@ -27,3 +27,14 @@ func (dcfr *DiskCodeFileRepository) WriteCodeFileOnDisk(inputfilename string, in
 	}
 	return nil
 }
+
+func (dcfr *DiskCodeFileRepository) CheckAndCreateRepository() error {
+	_, err := os.Stat(DiskCodeFileRepositoryPath)
+	if os.IsNotExist(err) {
+		err := os.Mkdir("testdir", 0750)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
