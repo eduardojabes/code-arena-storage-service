@@ -113,3 +113,46 @@ func TestAddCodeFile(t *testing.T) {
 		}
 	})
 }
+
+func TestUpdateCodeFile(t *testing.T) {
+	t.Run("Updating Code", func(t *testing.T) {
+		mock, _ := pgxmock.NewConn()
+
+		codeFile := &entity.CodeFile{
+			UserID: uuid.New(),
+			CodeID: uuid.New(),
+			Path:   "path",
+		}
+
+		mock.ExpectExec("UPDATE storage-service SET ").
+			WithArgs(codeFile.UserID, codeFile.CodeID, codeFile.Path).
+			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+
+		repository := NewPostgreCodeFileRepository(mock)
+		err := repository.UpdateCodeFile(context.Background(), *codeFile)
+
+		if err != nil {
+			t.Errorf("got %v error, it should be nil", err)
+		}
+	})
+
+	t.Run("with_error", func(t *testing.T) {
+		mock, _ := pgxmock.NewConn()
+
+		codeFile := &entity.CodeFile{
+			UserID: uuid.New(),
+			CodeID: uuid.New(),
+			Path:   "path",
+		}
+
+		mock.ExpectQuery("UPDATE storage-service SET (.+) WHERE (.+)").
+			WillReturnError(errors.New("error"))
+
+		repository := NewPostgreCodeFileRepository(mock)
+		err := repository.UpdateCodeFile(context.Background(), *codeFile)
+
+		if err == nil {
+			t.Errorf("got %v want nil", err)
+		}
+	})
+}

@@ -2,10 +2,14 @@ package codefile
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"reflect"
 	"testing"
+
+	"github.com/eduardojabes/code-arena-storage-service/internal/pkg/entity"
+	"github.com/google/uuid"
 )
 
 type MockStorage struct {
@@ -27,6 +31,25 @@ func (ms *MockStorage) ReadFile(key string) ([]byte, error) {
 	return nil, errors.New("ReadFileMock must be set")
 }
 
+type MockRepository struct {
+	GetCodeFileMock func(ctx context.Context, ID uuid.UUID) (*entity.CodeFile, error)
+	AddCodeFileMock func(ctx context.Context, user entity.CodeFile) error
+}
+
+func (mr *MockRepository) GetCodeFile(ctx context.Context, ID uuid.UUID) (*entity.CodeFile, error) {
+	if mr.GetCodeFileMock != nil {
+		return mr.GetCodeFileMock(ctx, ID)
+	}
+	return nil, errors.New("GetCodeFileMockmust be set")
+}
+
+func (mr *MockRepository) AddCodeFile(ctx context.Context, user entity.CodeFile) error {
+	if mr.GetCodeFileMock != nil {
+		return mr.AddCodeFileMock(ctx, user)
+	}
+	return errors.New("AddCodeFileMockmust be set")
+}
+
 func TestAddFileToStorage(t *testing.T) {
 	t.Run("error writing file", func(t *testing.T) {
 		want := errors.New("error")
@@ -36,9 +59,9 @@ func TestAddFileToStorage(t *testing.T) {
 				return want
 			},
 		}
+		repository := &MockRepository{}
 
-		service := NewCodeFileService(storage)
-
+		service := NewCodeFileService(storage, repository)
 		got := service.AddFileToStorage("key", &bytes.Buffer{})
 
 		if !errors.Is(got, want) {
@@ -52,8 +75,9 @@ func TestAddFileToStorage(t *testing.T) {
 				return nil
 			},
 		}
+		repository := &MockRepository{}
 
-		service := NewCodeFileService(storage)
+		service := NewCodeFileService(storage, repository)
 		got := service.AddFileToStorage("key", &bytes.Buffer{})
 
 		if got != nil {
@@ -72,7 +96,9 @@ func TestReadFileToStorage(t *testing.T) {
 			},
 		}
 
-		service := NewCodeFileService(storage)
+		repository := &MockRepository{}
+
+		service := NewCodeFileService(storage, repository)
 
 		_, got := service.ReadFileFromStorage("key")
 
@@ -88,8 +114,9 @@ func TestReadFileToStorage(t *testing.T) {
 				return want, nil
 			},
 		}
+		repository := &MockRepository{}
 
-		service := NewCodeFileService(storage)
+		service := NewCodeFileService(storage, repository)
 		got, err := service.ReadFileFromStorage("key")
 
 		if err != nil {

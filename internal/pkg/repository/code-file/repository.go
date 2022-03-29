@@ -59,3 +59,11 @@ func (r *PostgreCodeFileRepository) AddCodeFile(ctx context.Context, codeFile en
 	}
 	return nil
 }
+
+func (r *PostgreCodeFileRepository) UpdateCodeFile(ctx context.Context, codeFile entity.CodeFile) error {
+	_, err := r.conn.Exec(ctx, `UPDATE storage-service SET (cfm_code_id, cfm_code_path) values($2, $3) WHERE $1`, codeFile.UserID, codeFile.CodeID, codeFile.Path)
+	if err != nil {
+		return err
+	}
+	return nil
+}
