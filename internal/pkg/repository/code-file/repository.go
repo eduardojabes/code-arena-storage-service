@@ -16,9 +16,9 @@ type CodeFileRepository interface {
 }
 
 type CodeFileModel struct {
-	UserID uuid.UUID `db:"cfm_user_id"`
-	CodeID uuid.UUID `db:"cfm_code_id"`
-	Path   string    `db:"cfm_code_path"`
+	UserID uuid.UUID `db:"uc_user_id"`
+	CodeID uuid.UUID `db:"uc_code_id"`
+	Path   string    `db:"uc_code_path"`
 }
 
 type PostgreCodeFileRepository struct {
@@ -36,7 +36,7 @@ func NewPostgreCodeFileRepository(conn connector) *PostgreCodeFileRepository {
 
 func (r *PostgreCodeFileRepository) GetCodeFile(ctx context.Context, UserID uuid.UUID) (*entity.CodeFile, error) {
 	var codefile []*CodeFileModel
-	err := pgxscan.Select(ctx, r.conn, &codefile, `SELECT * FROM storage-service WHERE cfm_user_id = $1`, UserID)
+	err := pgxscan.Select(ctx, r.conn, &codefile, `SELECT * FROM user-code WHERE uc_user_id = $1`, UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error while executing query: %w", err)
 	}
@@ -53,7 +53,7 @@ func (r *PostgreCodeFileRepository) GetCodeFile(ctx context.Context, UserID uuid
 }
 
 func (r *PostgreCodeFileRepository) AddCodeFile(ctx context.Context, codeFile entity.CodeFile) error {
-	_, err := r.conn.Exec(ctx, `INSERT INTO storage-service(cfm_user_id, cfm_code_id, cfm_code_path) values($1, $2, $3)`, codeFile.UserID, codeFile.CodeID, codeFile.Path)
+	_, err := r.conn.Exec(ctx, `INSERT INTO user-code(uc_user_id, uc_code_id, uc_code_path) values($1, $2, $3)`, codeFile.UserID, codeFile.CodeID, codeFile.Path)
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func (r *PostgreCodeFileRepository) AddCodeFile(ctx context.Context, codeFile en
 }
 
 func (r *PostgreCodeFileRepository) UpdateCodeFile(ctx context.Context, codeFile entity.CodeFile) error {
-	_, err := r.conn.Exec(ctx, `UPDATE storage-service SET (cfm_code_id, cfm_code_path) values($2, $3) WHERE $1`, codeFile.UserID, codeFile.CodeID, codeFile.Path)
+	_, err := r.conn.Exec(ctx, `UPDATE user-code SET (uc_code_id, uc_code_path) values($2, $3) WHERE $1`, codeFile.UserID, codeFile.CodeID, codeFile.Path)
 	if err != nil {
 		return err
 	}

@@ -14,8 +14,8 @@ import (
 func TestGetCodeFile(t *testing.T) {
 	t.Run("no_rows", func(t *testing.T) {
 		mock, _ := pgxmock.NewConn()
-		mock.ExpectQuery("SELECT (.+) FROM storage-service WHERE (.+)").
-			WillReturnRows(mock.NewRows([]string{"cfm_user_id", "cfm_code_id", "cfm_code_path"}))
+		mock.ExpectQuery("SELECT (.+) FROM user-code WHERE (.+)").
+			WillReturnRows(mock.NewRows([]string{"uc_user_id", "uc_code_id", "uc_code_path"}))
 
 		repository := NewPostgreCodeFileRepository(mock)
 
@@ -39,8 +39,8 @@ func TestGetCodeFile(t *testing.T) {
 			Path:   "path",
 		}
 
-		mock.ExpectQuery("SELECT (.+) FROM storage-service WHERE (.+)").
-			WillReturnRows(mock.NewRows([]string{"cfm_user_id", "cfm_code_id", "cfm_code_path"}).
+		mock.ExpectQuery("SELECT (.+) FROM user-code WHERE (.+)").
+			WillReturnRows(mock.NewRows([]string{"uc_user_id", "uc_code_id", "uc_code_path"}).
 				AddRow(codeFile.UserID, codeFile.CodeID, codeFile.Path))
 
 		repository := NewPostgreCodeFileRepository(mock)
@@ -59,7 +59,7 @@ func TestGetCodeFile(t *testing.T) {
 	t.Run("with_error", func(t *testing.T) {
 		mock, _ := pgxmock.NewConn()
 
-		mock.ExpectQuery("SELECT (.+) FROM storage-service WHERE (.+)").
+		mock.ExpectQuery("SELECT (.+) FROM user-code WHERE (.+)").
 			WillReturnError(errors.New("error"))
 
 		repository := NewPostgreCodeFileRepository(mock)
@@ -81,7 +81,7 @@ func TestAddCodeFile(t *testing.T) {
 			Path:   "path",
 		}
 
-		mock.ExpectExec("INSERT INTO storage-service").
+		mock.ExpectExec("INSERT INTO user-code").
 			WithArgs(codeFile.UserID, codeFile.CodeID, codeFile.Path).
 			WillReturnResult(pgxmock.NewResult("INSERT", 1))
 
@@ -102,7 +102,7 @@ func TestAddCodeFile(t *testing.T) {
 			Path:   "path",
 		}
 
-		mock.ExpectQuery("SELECT (.+) FROM storage-service WHERE (.+)").
+		mock.ExpectQuery("SELECT (.+) FROM user-code WHERE (.+)").
 			WillReturnError(errors.New("error"))
 
 		repository := NewPostgreCodeFileRepository(mock)
@@ -124,7 +124,7 @@ func TestUpdateCodeFile(t *testing.T) {
 			Path:   "path",
 		}
 
-		mock.ExpectExec("UPDATE storage-service SET ").
+		mock.ExpectExec("UPDATE user-code SET ").
 			WithArgs(codeFile.UserID, codeFile.CodeID, codeFile.Path).
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 
@@ -145,7 +145,7 @@ func TestUpdateCodeFile(t *testing.T) {
 			Path:   "path",
 		}
 
-		mock.ExpectQuery("UPDATE storage-service SET (.+) WHERE (.+)").
+		mock.ExpectQuery("UPDATE user-code SET (.+) WHERE (.+)").
 			WillReturnError(errors.New("error"))
 
 		repository := NewPostgreCodeFileRepository(mock)
