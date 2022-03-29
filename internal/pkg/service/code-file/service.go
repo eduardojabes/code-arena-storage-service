@@ -14,13 +14,23 @@ type CodeFileService struct {
 	storage CodeFileStorage
 }
 
-func (cfs *CodeFileService) AddFileToStorage(inputFileName string, inputFileData io.Reader) error {
-	err := cfs.storage.WriteFile(inputFileName, inputFileData)
+func (cfs *CodeFileService) AddFileToStorage(key string, inputFileData io.Reader) error {
+	err := cfs.storage.WriteFile(key, inputFileData)
 	if err != nil {
-		err = fmt.Errorf("error while trying to store code file: %w", err)
+		err = fmt.Errorf("error while trying to write code file: %w", err)
 		return err
 	}
 	return nil
+}
+
+func (cfs *CodeFileService) ReadFileFromStorage(key string) ([]byte, error) {
+
+	buf, err := cfs.storage.ReadFile(key)
+	if err != nil {
+		err = fmt.Errorf("error while trying to read code file: %w", err)
+		return nil, err
+	}
+	return buf, nil
 }
 
 func NewCodeFileService(storage CodeFileStorage) *CodeFileService {
