@@ -1,8 +1,12 @@
 package codefile
 
 import (
+	"context"
 	"fmt"
 	"io"
+
+	"github.com/eduardojabes/code-arena-storage-service/internal/pkg/entity"
+	"github.com/google/uuid"
 )
 
 type CodeFileStorage interface {
@@ -10,8 +14,14 @@ type CodeFileStorage interface {
 	ReadFile(key string) ([]byte, error)
 }
 
+type CodeFileRepository interface {
+	GetCodeFile(ctx context.Context, ID uuid.UUID) (*entity.CodeFile, error)
+	AddCodeFile(ctx context.Context, user entity.CodeFile) error
+}
+
 type CodeFileService struct {
-	storage CodeFileStorage
+	storage    CodeFileStorage
+	repository CodeFileRepository
 }
 
 func (cfs *CodeFileService) AddFileToStorage(key string, inputFileData io.Reader) error {
@@ -33,6 +43,9 @@ func (cfs *CodeFileService) ReadFileFromStorage(key string) ([]byte, error) {
 	return buf, nil
 }
 
-func NewCodeFileService(storage CodeFileStorage) *CodeFileService {
-	return &CodeFileService{storage: storage}
+func NewCodeFileService(storage CodeFileStorage, repository CodeFileRepository) *CodeFileService {
+	return &CodeFileService{
+		storage:    storage,
+		repository: repository,
+	}
 }
