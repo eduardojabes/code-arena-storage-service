@@ -32,22 +32,30 @@ func (ms *MockStorage) ReadFile(key string) ([]byte, error) {
 }
 
 type MockRepository struct {
-	GetCodeFileMock func(ctx context.Context, ID uuid.UUID) (*entity.CodeFile, error)
-	AddCodeFileMock func(ctx context.Context, user entity.CodeFile) error
+	GetCodeFileMock            func(ctx context.Context, ID uuid.UUID) (*entity.CodeFile, error)
+	AddCodeFileMock            func(ctx context.Context, codeFile entity.CodeFile) error
+	UpdateCodeFileFromUserMock func(ctx context.Context, codeFile entity.CodeFile) error
 }
 
 func (mr *MockRepository) GetCodeFile(ctx context.Context, ID uuid.UUID) (*entity.CodeFile, error) {
 	if mr.GetCodeFileMock != nil {
 		return mr.GetCodeFileMock(ctx, ID)
 	}
-	return nil, errors.New("GetCodeFileMockmust be set")
+	return nil, errors.New("GetCodeFileMock must be set")
 }
 
-func (mr *MockRepository) AddCodeFile(ctx context.Context, user entity.CodeFile) error {
+func (mr *MockRepository) AddCodeFile(ctx context.Context, codeFile entity.CodeFile) error {
 	if mr.GetCodeFileMock != nil {
-		return mr.AddCodeFileMock(ctx, user)
+		return mr.AddCodeFileMock(ctx, codeFile)
 	}
-	return errors.New("AddCodeFileMockmust be set")
+	return errors.New("AddCodeFileMock must be set")
+}
+
+func (mr *MockRepository) UpdateCodeFileFromUser(ctx context.Context, codeFile entity.CodeFile) error {
+	if mr.GetCodeFileMock != nil {
+		return mr.UpdateCodeFileFromUserMock(ctx, codeFile)
+	}
+	return errors.New("UpdateCodeFileFromUserMock must be set")
 }
 
 func TestAddFileToStorage(t *testing.T) {

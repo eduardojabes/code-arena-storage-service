@@ -129,7 +129,7 @@ func TestUpdateCodeFile(t *testing.T) {
 			WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 
 		repository := NewPostgreCodeFileRepository(mock)
-		err := repository.UpdateCodeFile(context.Background(), *codeFile)
+		err := repository.UpdateCodeFileFromUser(context.Background(), *codeFile)
 
 		if err != nil {
 			t.Errorf("got %v error, it should be nil", err)
@@ -149,7 +149,7 @@ func TestUpdateCodeFile(t *testing.T) {
 			WillReturnError(errors.New("error"))
 
 		repository := NewPostgreCodeFileRepository(mock)
-		err := repository.UpdateCodeFile(context.Background(), *codeFile)
+		err := repository.UpdateCodeFileFromUser(context.Background(), *codeFile)
 
 		if err == nil {
 			t.Errorf("got %v want nil", err)

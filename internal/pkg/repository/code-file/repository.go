@@ -11,8 +11,9 @@ import (
 )
 
 type CodeFileRepository interface {
-	GetCodeFile(ctx context.Context, ID uuid.UUID) (*entity.CodeFile, error)
-	AddCodeFile(ctx context.Context, user entity.CodeFile) error
+	GetCodeFile(ctx context.Context, UserID uuid.UUID) (*entity.CodeFile, error)
+	AddCodeFile(ctx context.Context, codeFile entity.CodeFile) error
+	UpdateCodeFileFromUser(ctx context.Context, codeFile entity.CodeFile) error
 }
 
 type CodeFileModel struct {
@@ -60,8 +61,8 @@ func (r *PostgreCodeFileRepository) AddCodeFile(ctx context.Context, codeFile en
 	return nil
 }
 
-func (r *PostgreCodeFileRepository) UpdateCodeFile(ctx context.Context, codeFile entity.CodeFile) error {
-	_, err := r.conn.Exec(ctx, `UPDATE user-code SET (uc_code_id, uc_code_path) values($2, $3) WHERE $1`, codeFile.UserID, codeFile.CodeID, codeFile.Path)
+func (r *PostgreCodeFileRepository) UpdateCodeFileFromUser(ctx context.Context, codeFile entity.CodeFile) error {
+	_, err := r.conn.Exec(ctx, `UPDATE user-code SET uc_code_id = $2, uc_code_path = $3 WHERE uc_user_id = $1`, codeFile.UserID, codeFile.CodeID, codeFile.Path)
 	if err != nil {
 		return err
 	}

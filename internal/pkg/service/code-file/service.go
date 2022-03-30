@@ -15,8 +15,9 @@ type CodeFileStorage interface {
 }
 
 type CodeFileRepository interface {
-	GetCodeFile(ctx context.Context, ID uuid.UUID) (*entity.CodeFile, error)
-	AddCodeFile(ctx context.Context, user entity.CodeFile) error
+	GetCodeFile(ctx context.Context, UserID uuid.UUID) (*entity.CodeFile, error)
+	AddCodeFile(ctx context.Context, codeFile entity.CodeFile) error
+	UpdateCodeFileFromUser(ctx context.Context, codeFile entity.CodeFile) error
 }
 
 type CodeFileService struct {
