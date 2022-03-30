@@ -1,9 +1,9 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS user_code (
-    uc_id UUID PRIMARY KEY, 
+    uc_code_id UUID PRIMARY KEY, 
     uc_user_id UUID, 
-    u_path TEXT
+    uc_path TEXT
 );
 -- +goose StatementEnd
 
